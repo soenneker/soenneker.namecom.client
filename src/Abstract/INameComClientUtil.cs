@@ -10,5 +10,5 @@ namespace Soenneker.NameCom.Client.Abstract;
 /// </summary>
 public interface INameComClientUtil : IDisposable, IAsyncDisposable
 {
-    ValueTask<HttpClient> Get(CancellationToken cancellationToken = default);
+    ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default);
 }
