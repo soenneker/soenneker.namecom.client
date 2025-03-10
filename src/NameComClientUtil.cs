@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Soenneker.Extensions.Arrays.Bytes;
 using Soenneker.Extensions.Configuration;
 using Soenneker.Extensions.String;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.NameCom.Client.Abstract;
 using Soenneker.Utils.HttpClientCache.Abstract;
 using Soenneker.Utils.HttpClientCache.Dtos;
@@ -48,7 +49,7 @@ public class NameComClientUtil : INameComClientUtil
             }
         };
 
-        string clientName = test ? $"{nameof(NameComClientUtil)}-test" : $"{nameof(NameComClientUtil)}";
+        string clientName = test ? $"{nameof(NameComClientUtil)}-test" : nameof(NameComClientUtil);
 
         return _httpClientCache.Get(clientName, options, cancellationToken);
     }
@@ -56,12 +57,16 @@ public class NameComClientUtil : INameComClientUtil
     public void Dispose()
     {
         GC.SuppressFinalize(this);
+
+        _httpClientCache.RemoveSync($"{nameof(NameComClientUtil)}-test");
         _httpClientCache.RemoveSync(nameof(NameComClientUtil));
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
-        return _httpClientCache.Remove(nameof(NameComClientUtil));
+
+        await _httpClientCache.Remove($"{nameof(NameComClientUtil)}-test").NoSync();
+        await _httpClientCache.Remove(nameof(NameComClientUtil)).NoSync();
     }
 }
