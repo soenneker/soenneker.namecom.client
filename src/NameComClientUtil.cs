@@ -58,15 +58,15 @@ public class NameComClientUtil : INameComClientUtil
     {
         GC.SuppressFinalize(this);
 
-        _httpClientCache.RemoveSync($"{nameof(NameComClientUtil)}-test");
         _httpClientCache.RemoveSync(nameof(NameComClientUtil));
+        _httpClientCache.RemoveSync($"{nameof(NameComClientUtil)}-test");
     }
 
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
 
-        await _httpClientCache.Remove($"{nameof(NameComClientUtil)}-test").NoSync();
         await _httpClientCache.Remove(nameof(NameComClientUtil)).NoSync();
+        await _httpClientCache.Remove($"{nameof(NameComClientUtil)}-test").NoSync();
     }
 }
