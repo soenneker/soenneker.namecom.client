@@ -1,15 +1,15 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using Soenneker.Dtos.HttpClientOptions;
 using Soenneker.Extensions.Arrays.Bytes;
 using Soenneker.Extensions.Configuration;
 using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.NameCom.Client.Abstract;
 using Soenneker.Utils.HttpClientCache.Abstract;
-using Soenneker.Utils.HttpClientCache.Dtos;
+using System;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Soenneker.NameCom.Client;
 
@@ -21,6 +21,8 @@ public class NameComClientUtil : INameComClientUtil
 
     private const string _prodBaseUrl = "https://api.name.com/v4/";
     private const string _testBaseUrl = "https://api.dev.name.com/v4/";
+    private const string _clientId = nameof(NameComClientUtil);
+    private const string _testClientId = nameof(NameComClientUtil) + "-test";
 
     public NameComClientUtil(IHttpClientCache httpClientCache, IConfiguration configuration)
     {
@@ -30,43 +32,43 @@ public class NameComClientUtil : INameComClientUtil
 
     public ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default)
     {
-        var username = _configuration.GetValueStrict<string>("NameCom:Username");
-        var token = _configuration.GetValueStrict<string>("NameCom:Token");
-
-        if (test)
-            username += "-test";
-
+        string clientId = test ? _testClientId : _clientId;
         string baseUrl = test ? _testBaseUrl : _prodBaseUrl;
 
-        string authHeader = $"{username}:{token}".ToBytes().ToBase64String();
-
-        var options = new HttpClientOptions
+        return _httpClientCache.Get(clientId, () =>
         {
-            BaseAddress = baseUrl,
-            DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+            var username = _configuration.GetValueStrict<string>("NameCom:Username");
+            var token = _configuration.GetValueStrict<string>("NameCom:Token");
+
+            if (test)
+                username += "-test";
+
+            string authHeader = $"{username}:{token}".ToBytes().ToBase64String();
+
+            return new HttpClientOptions
             {
-                { "Authorization", $"Basic {authHeader}" }
-            }
-        };
-
-        string clientName = test ? $"{nameof(NameComClientUtil)}-test" : nameof(NameComClientUtil);
-
-        return _httpClientCache.Get(clientName, options, cancellationToken);
+                BaseAddress = baseUrl,
+                DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "Authorization", $"Basic {authHeader}" }
+                }
+            };
+        }, cancellationToken);
     }
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
 
-        _httpClientCache.RemoveSync(nameof(NameComClientUtil));
-        _httpClientCache.RemoveSync($"{nameof(NameComClientUtil)}-test");
+        _httpClientCache.RemoveSync(_clientId);
+        _httpClientCache.RemoveSync(_testClientId);
     }
 
     public async ValueTask DisposeAsync()
     {
         GC.SuppressFinalize(this);
 
-        await _httpClientCache.Remove(nameof(NameComClientUtil)).NoSync();
-        await _httpClientCache.Remove($"{nameof(NameComClientUtil)}-test").NoSync();
+        await _httpClientCache.Remove(_clientId).NoSync();
+        await _httpClientCache.Remove(_testClientId).NoSync();
     }
 }
