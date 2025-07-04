@@ -15,8 +15,7 @@ public static class NameComClientUtilRegistrar
     /// </summary>
     public static IServiceCollection AddNameComClientUtilAsSingleton(this IServiceCollection services)
     {
-        services.AddHttpClientCacheAsSingleton();
-        services.TryAddSingleton<INameComClientUtil, NameComClientUtil>();
+        services.AddHttpClientCacheAsSingleton().TryAddSingleton<INameComClientUtil, NameComClientUtil>();
 
         return services;
     }
@@ -26,8 +25,7 @@ public static class NameComClientUtilRegistrar
     /// </summary>
     public static IServiceCollection AddNameComClientUtilAsScoped(this IServiceCollection services)
     {
-        services.AddHttpClientCacheAsSingleton();
-        services.TryAddScoped<INameComClientUtil, NameComClientUtil>();
+        services.AddHttpClientCacheAsSingleton().TryAddScoped<INameComClientUtil, NameComClientUtil>();
 
         return services;
     }

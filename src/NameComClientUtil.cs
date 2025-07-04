@@ -6,7 +6,6 @@ using Soenneker.Extensions.String;
 using Soenneker.Extensions.ValueTask;
 using Soenneker.NameCom.Client.Abstract;
 using Soenneker.Utils.HttpClientCache.Abstract;
-using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +13,7 @@ using System.Threading.Tasks;
 namespace Soenneker.NameCom.Client;
 
 /// <inheritdoc cref="INameComClientUtil"/>
-public class NameComClientUtil : INameComClientUtil
+public sealed class NameComClientUtil : INameComClientUtil
 {
     private readonly IHttpClientCache _httpClientCache;
     private readonly IConfiguration _configuration;
@@ -58,16 +57,12 @@ public class NameComClientUtil : INameComClientUtil
 
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
-
         _httpClientCache.RemoveSync(_clientId);
         _httpClientCache.RemoveSync(_testClientId);
     }
 
     public async ValueTask DisposeAsync()
     {
-        GC.SuppressFinalize(this);
-
         await _httpClientCache.Remove(_clientId).NoSync();
         await _httpClientCache.Remove(_testClientId).NoSync();
     }
