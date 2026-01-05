@@ -33,38 +33,35 @@ public sealed class NameComClientUtil : INameComClientUtil
 
     public ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default)
     {
+        // No closure: state passed explicitly + static lambda
         return test
-            ? _httpClientCache.Get(_testClientId, CreateTestHttpClientOptions, cancellationToken)
-            : _httpClientCache.Get(_clientId, CreateProdHttpClientOptions, cancellationToken);
-    }
-
-    private HttpClientOptions? CreateProdHttpClientOptions()
-    {
-        string authHeader = $"{_username}:{_token}".ToBytes().ToBase64String();
-
-        return new HttpClientOptions
-        {
-            BaseAddress = _prodBaseUrl,
-            DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+            ? _httpClientCache.Get(_testClientId, (username: _username, token: _token, baseUrl: _testBaseUrl), static state =>
             {
-                { "Authorization", $"Basic {authHeader}" }
-            }
-        };
-    }
+                string username = state.username + "-test";
+                string authHeader = $"{username}:{state.token}".ToBytes().ToBase64String();
 
-    private HttpClientOptions? CreateTestHttpClientOptions()
-    {
-        string username = _username + "-test";
-        string authHeader = $"{username}:{_token}".ToBytes().ToBase64String();
-
-        return new HttpClientOptions
-        {
-            BaseAddress = _testBaseUrl,
-            DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+                return new HttpClientOptions
+                {
+                    BaseAddress = state.baseUrl,
+                    DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+                    {
+                        { "Authorization", $"Basic {authHeader}" }
+                    }
+                };
+            }, cancellationToken)
+            : _httpClientCache.Get(_clientId, (username: _username, token: _token, baseUrl: _prodBaseUrl), static state =>
             {
-                { "Authorization", $"Basic {authHeader}" }
-            }
-        };
+                string authHeader = $"{state.username}:{state.token}".ToBytes().ToBase64String();
+
+                return new HttpClientOptions
+                {
+                    BaseAddress = state.baseUrl,
+                    DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+                    {
+                        { "Authorization", $"Basic {authHeader}" }
+                    }
+                };
+            }, cancellationToken);
     }
 
     public void Dispose()
