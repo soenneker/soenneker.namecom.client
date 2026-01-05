@@ -16,7 +16,8 @@ namespace Soenneker.NameCom.Client;
 public sealed class NameComClientUtil : INameComClientUtil
 {
     private readonly IHttpClientCache _httpClientCache;
-    private readonly IConfiguration _configuration;
+    private readonly string _username;
+    private readonly string _token;
 
     private const string _prodBaseUrl = "https://api.name.com/v4/";
     private const string _testBaseUrl = "https://api.dev.name.com/v4/";
@@ -26,33 +27,44 @@ public sealed class NameComClientUtil : INameComClientUtil
     public NameComClientUtil(IHttpClientCache httpClientCache, IConfiguration configuration)
     {
         _httpClientCache = httpClientCache;
-        _configuration = configuration;
+        _username = configuration.GetValueStrict<string>("NameCom:Username");
+        _token = configuration.GetValueStrict<string>("NameCom:Token");
     }
 
     public ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default)
     {
-        string clientId = test ? _testClientId : _clientId;
-        string baseUrl = test ? _testBaseUrl : _prodBaseUrl;
+        return test
+            ? _httpClientCache.Get(_testClientId, CreateTestHttpClientOptions, cancellationToken)
+            : _httpClientCache.Get(_clientId, CreateProdHttpClientOptions, cancellationToken);
+    }
 
-        return _httpClientCache.Get(clientId, () =>
+    private HttpClientOptions? CreateProdHttpClientOptions()
+    {
+        string authHeader = $"{_username}:{_token}".ToBytes().ToBase64String();
+
+        return new HttpClientOptions
         {
-            var username = _configuration.GetValueStrict<string>("NameCom:Username");
-            var token = _configuration.GetValueStrict<string>("NameCom:Token");
-
-            if (test)
-                username += "-test";
-
-            string authHeader = $"{username}:{token}".ToBytes().ToBase64String();
-
-            return new HttpClientOptions
+            BaseAddress = _prodBaseUrl,
+            DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
             {
-                BaseAddress = baseUrl,
-                DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
-                {
-                    { "Authorization", $"Basic {authHeader}" }
-                }
-            };
-        }, cancellationToken);
+                { "Authorization", $"Basic {authHeader}" }
+            }
+        };
+    }
+
+    private HttpClientOptions? CreateTestHttpClientOptions()
+    {
+        string username = _username + "-test";
+        string authHeader = $"{username}:{_token}".ToBytes().ToBase64String();
+
+        return new HttpClientOptions
+        {
+            BaseAddress = _testBaseUrl,
+            DefaultRequestHeaders = new System.Collections.Generic.Dictionary<string, string>
+            {
+                { "Authorization", $"Basic {authHeader}" }
+            }
+        };
     }
 
     public void Dispose()
