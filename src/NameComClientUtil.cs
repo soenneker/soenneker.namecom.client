@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 using Soenneker.Dtos.HttpClientOptions;
 using Soenneker.Extensions.Arrays.Bytes;
 using Soenneker.Extensions.Configuration;
@@ -19,8 +20,8 @@ public sealed class NameComClientUtil : INameComClientUtil
     private readonly string _username;
     private readonly string _token;
 
-    private const string _prodBaseUrl = "https://api.name.com/v4/";
-    private const string _testBaseUrl = "https://api.dev.name.com/v4/";
+    private static readonly Uri _prodBaseUrl = new("https://api.name.com/v4/", UriKind.Absolute);
+    private static readonly Uri _testBaseUrl = new("https://api.dev.name.com/v4/", UriKind.Absolute);
     private const string _clientId = nameof(NameComClientUtil);
     private const string _testClientId = nameof(NameComClientUtil) + "-test";
 
