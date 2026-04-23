@@ -1,20 +1,19 @@
-﻿using Soenneker.NameCom.Client.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.NameCom.Client.Abstract;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.NameCom.Client.Tests;
 
-[Collection("Collection")]
-public class NameComClientUtilTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class NameComClientUtilTests : HostedUnitTest
 {
     private readonly INameComClientUtil _util;
 
-    public NameComClientUtilTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public NameComClientUtilTests(Host host) : base(host)
     {
         _util = Resolve<INameComClientUtil>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
