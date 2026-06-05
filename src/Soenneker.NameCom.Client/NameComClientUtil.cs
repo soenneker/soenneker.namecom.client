@@ -65,12 +65,19 @@ public sealed class NameComClientUtil : INameComClientUtil
             }, cancellationToken);
     }
 
+    /// <summary>
+    /// Releases resources used by the current instance.
+    /// </summary>
     public void Dispose()
     {
         _httpClientCache.RemoveSync(_clientId);
         _httpClientCache.RemoveSync(_testClientId);
     }
 
+    /// <summary>
+    /// Asynchronously releases resources used by the current instance.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         await _httpClientCache.Remove(_clientId).NoSync();
