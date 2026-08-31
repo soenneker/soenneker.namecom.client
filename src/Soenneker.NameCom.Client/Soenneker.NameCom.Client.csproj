@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Description>A .NET thread-safe singleton HttpClient for Name.com</Description>
+        <Description>Provides cached, authenticated HTTP clients for Name.com's production and test APIs.</Description>
         <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.NameCom.Client</AssemblyName>

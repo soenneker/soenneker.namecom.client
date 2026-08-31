@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace Soenneker.NameCom.Client;
 
-/// <inheritdoc cref="INameComClientUtil"/>
 public sealed class NameComClientUtil : INameComClientUtil
 {
     private readonly IHttpClientCache _httpClientCache;
@@ -22,12 +21,13 @@ public sealed class NameComClientUtil : INameComClientUtil
 
     private static readonly Uri _prodBaseUrl = new("https://api.name.com/v4/", UriKind.Absolute);
     private static readonly Uri _testBaseUrl = new("https://api.dev.name.com/v4/", UriKind.Absolute);
-    private const string _clientId = nameof(NameComClientUtil);
-    private const string _testClientId = nameof(NameComClientUtil) + "-test";
+    private readonly string _clientId = $"{nameof(NameComClientUtil)}:{Guid.NewGuid():N}";
+    private readonly string _testClientId;
 
     public NameComClientUtil(IHttpClientCache httpClientCache, IConfiguration configuration)
     {
         _httpClientCache = httpClientCache;
+        _testClientId = $"{_clientId}:test";
         _username = configuration.GetValueStrict<string>("NameCom:Username");
         _token = configuration.GetValueStrict<string>("NameCom:Token");
     }
@@ -65,19 +65,12 @@ public sealed class NameComClientUtil : INameComClientUtil
             }, cancellationToken);
     }
 
-    /// <summary>
-    /// Releases resources used by the current instance.
-    /// </summary>
     public void Dispose()
     {
         _httpClientCache.RemoveSync(_clientId);
         _httpClientCache.RemoveSync(_testClientId);
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public async ValueTask DisposeAsync()
     {
         await _httpClientCache.Remove(_clientId).NoSync();

@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 namespace Soenneker.NameCom.Client.Abstract;
 
 /// <summary>
-/// A .NET thread-safe singleton HttpClient for Name.com
+/// Provides cached, authenticated HTTP clients for Name.com's production and test APIs.
 /// </summary>
 public interface INameComClientUtil : IDisposable, IAsyncDisposable
 {
     /// <summary>
-    /// Gets the value.
+    /// Gets the production or test Name.com client.
     /// </summary>
-    /// <param name="test">The test.</param>
+    /// <param name="test">Whether to use Name.com's test API.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task containing the result of the operation.</returns>
+    /// <returns>The cached client.</returns>
     ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default);
 }
