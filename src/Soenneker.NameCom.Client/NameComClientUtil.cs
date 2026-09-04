@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Soenneker.NameCom.Client;
 
+/// <inheritdoc cref="INameComClientUtil" />
 public sealed class NameComClientUtil : INameComClientUtil
 {
     private readonly IHttpClientCache _httpClientCache;
