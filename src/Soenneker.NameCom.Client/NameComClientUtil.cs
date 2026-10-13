@@ -29,8 +29,8 @@ public sealed class NameComClientUtil : INameComClientUtil
     {
         _httpClientCache = httpClientCache;
         _testClientId = $"{_clientId}:test";
-        _username = configuration.GetValueStrict<string>("NameCom:Username");
-        _token = configuration.GetValueStrict<string>("NameCom:Token");
+        _username = configuration.GetStringStrict("NameCom:Username");
+        _token = configuration.GetStringStrict("NameCom:Token");
     }
 
     public ValueTask<HttpClient> Get(bool test = false, CancellationToken cancellationToken = default)
