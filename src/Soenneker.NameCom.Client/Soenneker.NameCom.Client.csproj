@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework>net11.0</TargetFramework>
         <IsAotCompatible>true</IsAotCompatible>
         <Nullable>enable</Nullable>
         <Platforms>AnyCPU</Platforms>
@@ -10,7 +10,7 @@
 
     <PropertyGroup>
         <Description>Provides cached, authenticated HTTP clients for Name.com's production and test APIs.</Description>
-        <Version Condition="'$(BUILD_VERSION)' == ''">4.0.0</Version>
+        <Version Condition="'$(BUILD_VERSION)' == ''">11.0.0</Version>
         <Version Condition="'$(BUILD_VERSION)' != ''">$(BUILD_VERSION)</Version>
         <AssemblyName>Soenneker.NameCom.Client</AssemblyName>
         <PackageId>Soenneker.NameCom.Client</PackageId>
@@ -46,7 +46,7 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Extensions.Arrays.Bytes" Version="4.0.78" />
-        <PackageReference Include="Soenneker.Extensions.Configuration" Version="4.0.911" />
+        <PackageReference Include="Soenneker.Extensions.Configuration" Version="11.0.913" />
         <PackageReference Include="Soenneker.Utils.HttpClientCache" Version="4.0.2128" />
     </ItemGroup>
 </Project>
